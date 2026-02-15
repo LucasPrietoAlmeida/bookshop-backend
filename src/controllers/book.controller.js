@@ -1,4 +1,6 @@
 const Book = require('../models/book.model');
+const User = require('../models/user.model');
+const { sendEmail } = require('../utils/email');
 
 exports.createBook = async (req, res) => {
     try {
@@ -9,6 +11,7 @@ exports.createBook = async (req, res) => {
             price,
             author,
             ownerId: req.user._id,
+            status: 'PUBLISHED',
         });
         await book.save();
         res.status(201).json(book);
@@ -68,6 +71,15 @@ exports.updateBook = async (req, res) => {
     }
 };
 
+exports.getMyBooks = async (req, res) => {
+    try {
+        const myBooks = await Book.find({ ownerId: req.user._id });
+        res.json(myBooks);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 exports.buyBook = async (req, res) => {
     try {
         const book = await Book.findById(req.params.id);
@@ -78,6 +90,19 @@ exports.buyBook = async (req, res) => {
         book.status = 'SOLD';
         book.soldAt = new Date();
         await book.save();
+
+        try {
+            const seller = await User.findById(book.ownerId);
+            if (seller && sendEmail) {
+                await sendEmail({
+                    to: seller.email,
+                    subject: 'Tu libro ha sido vendido!',
+                    text: `¡Felicidades! Tu libro "${book.title}" ha sido comprado por un usuario.`
+                });
+            }
+        } catch (emailErr) {
+            console.warn('No se pudo enviar email:', emailErr.message);
+        }
 
         res.json(book);
     } catch (err) {

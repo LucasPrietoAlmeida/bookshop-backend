@@ -9,6 +9,7 @@ const bookSchema = new mongoose.Schema({
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     soldAt: { type: Date, default: null },
     createdAt: { type: Date, default: Date.now },
+    emailSent: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model('Book', bookSchema);
