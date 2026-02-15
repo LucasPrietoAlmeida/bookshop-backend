@@ -3,17 +3,20 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth.routes');
 const authMiddleware = require('./middlewares/auth.middleware');
+const bookRoutes = require('./routes/book.routes');
 
 dotenv.config();
 
 const app = express();
+
 app.use(express.json());
+
+app.use('/books', bookRoutes);
+app.use('/auth', authRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-
-app.use('/auth', authRoutes);
 
 app.get('/users/me', authMiddleware, (req, res) => {
     res.json(req.user);

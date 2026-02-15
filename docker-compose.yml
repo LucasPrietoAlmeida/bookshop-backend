@@ -1,28 +1,24 @@
-version: "3.9"
+version: '3.9'
 
 services:
   api:
     build: .
-    container_name: bookshop_api
+    container_name: bookshop-api
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
-      - PORT=3000
       - MONGO_URI=mongodb://mongo:27017/bookshop
+      - JWT_SECRET=supersecret
     depends_on:
       - mongo
-    command: npm run dev
 
   mongo:
-    image: mongo:7
-    container_name: bookshop_mongo
+    image: mongo:6
+    container_name: bookshop-mongo
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - mongo-data:/data/db
 
 volumes:
-  mongo_data:
+  mongo-data:
